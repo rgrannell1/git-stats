@@ -37,11 +37,31 @@ const repository = (commitFacts, blameFacts) => {
 
 	blameFacts.forEach(blame => {
 
-		Object.keys(blame).forEach(author => {
+		const fileLines = Object.keys(blame.authors)
+			.map(author => blame.authors[author].count)
+			.reduce((num0, num1) => num0 + num1, 0)
 
-			//stats.authors[author].files = stats.authors[author].files || { }
+		Object.keys(blame.authors).forEach(author => {
 
-			console.log(blame)
+			const authorBlame = blame.authors[author]
+
+			stats.authors[author].files = stats.authors[author].files || { }
+
+			const authorFileStats = stats.authors[author].files
+
+			if (!authorFileStats.hasOwnProperty(authorBlame.path)) {
+
+				authorFileStats[authorBlame.path] = {
+					authorLines: authorBlame.count,
+					totalLines:  fileLines,
+					percent:     parseFloat((authorBlame.count / fileLines).toFixed(2))
+				}
+
+			} else {
+
+				stats.authors[author].files[authorBlame][authorBlame.path].lines += authorBlame.count
+
+			}
 
 		})
 
