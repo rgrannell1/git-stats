@@ -25,12 +25,12 @@ const repository = (commitFacts, blameFacts) => {
 		if (!stats.authors.hasOwnProperty(committer)) {
 
 			stats.authors[committer] = {
-				count: 1
+				commits: 1
 			}
 
 		} else {
 
-			stats.authors[committer].count++
+			stats.authors[committer].commits++
 
 		}
 
@@ -64,7 +64,7 @@ const repository = (commitFacts, blameFacts) => {
 				authorFileStats[authorBlame.path] = {
 					authorLines: authorBlame.count,
 					totalLines:  fileLines,
-					percent:     parseFloat((authorBlame.count / fileLines).toFixed(2))
+					linePercent: parseFloat((authorBlame.count / fileLines).toFixed(2)) || 0
 				}
 
 			} else {
@@ -90,7 +90,7 @@ const repository = (commitFacts, blameFacts) => {
 	})
 
 	Object.keys(stats.authors).forEach(author => {
-		stats.authors[author].percent = parseFloat((stats.authors[author].count / stats.commits).toFixed(2))
+		stats.authors[author].commitPercent = parseFloat((stats.authors[author].commits / stats.commits).toFixed(2)) || 0
 	})
 
 	return stats
