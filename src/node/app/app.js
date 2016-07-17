@@ -23,7 +23,7 @@ const app = args => {
 	const repoPath   = path.resolve(args['--path'])
 
 	const branchName = 'master'
-//	const branchName = 'develop'
+	// const branchName = 'develop'
 
 	git.Repository
 		.open(repoPath)
@@ -64,6 +64,9 @@ const app = args => {
 
 							console.log(JSON.stringify(repoFacts))
 
+						})
+						.catch(err => {
+							console.log(err)
 						})
 
 					})

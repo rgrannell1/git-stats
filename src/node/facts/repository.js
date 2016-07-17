@@ -45,9 +45,18 @@ const repository = (commitFacts, blameFacts) => {
 
 			const authorBlame = blame.authors[author]
 
-			stats.authors[author].files = stats.authors[author].files || { }
+			if (!stats.authors[author]) {
+				stats.authors[author] = { }
+			}
 
-			const authorFileStats = stats.authors[author].files
+			const authorStats = stats.authors[author]
+
+			authorStats.files     = authorStats.files || { }
+			const authorFileStats = authorStats.files
+
+			if (!authorStats.files) {
+				authorStats.files = { }
+			}
 
 			if (!authorFileStats.hasOwnProperty(authorBlame.path)) {
 
@@ -59,8 +68,14 @@ const repository = (commitFacts, blameFacts) => {
 
 			} else {
 
-				stats.authors[author].files[authorBlame][authorBlame.path].lines += authorBlame.count
+				authorFileStats.files[authorBlame.path].lines += authorBlame.count
 
+			}
+
+			if (!authorStats.lineCount) {
+				authorStats.lineCount = authorBlame.count
+			} else {
+				authorStats.lineCount += authorBlame.count
 			}
 
 		})
