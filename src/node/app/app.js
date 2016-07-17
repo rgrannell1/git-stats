@@ -22,8 +22,7 @@ const app = args => {
 
 	const repoPath   = path.resolve(args['--path'])
 
-	const branchName = 'master'
-	// const branchName = 'develop'
+	const branchName = args['--branch']
 
 	git.Repository
 		.open(repoPath)

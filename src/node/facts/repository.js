@@ -14,6 +14,7 @@ const repository = (commitFacts, blameFacts) => {
 
 	const stats = {
 		commits: commitFacts.length,
+		lines:   0,
 		authors: { }
 	}
 
@@ -72,11 +73,17 @@ const repository = (commitFacts, blameFacts) => {
 
 			}
 
+			if (!authorStats.collaborators) {
+				authorStats.collaborators = { }
+			}
+
 			if (!authorStats.lineCount) {
 				authorStats.lineCount = authorBlame.count
 			} else {
 				authorStats.lineCount += authorBlame.count
 			}
+
+			stats.lines += authorBlame.count
 
 		})
 

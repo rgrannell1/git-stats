@@ -6,20 +6,20 @@
 
 
 const path   = require('path')
-const neodoc = require('neodoc')
+const docopt = require('docopt')
 const app    = require( path.resolve(path.join(__dirname, '../app/app.js')) )
 
 
 
 
 
-const args = neodoc.run(`
-usage:
-	git-stats [options]
+const args = docopt.docopt(`
+Usage:
+	git-stats (--path=<str>) [--branch=<str>]
 
-options:
-	--author=<str>   .
-	--path=<str>     The path to load.
+Options:
+	--branch=<str>    The branch to use [default: master].
+	--path=<str>      The path to load.
 	--time-series
 `)
 
