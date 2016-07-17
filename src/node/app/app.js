@@ -40,38 +40,42 @@ const app = args => {
 			history.on('end', commits => {
 
 				const commitFacts = commits.map(facts.commit)
-				const repoFacts   = facts.repository(commitFacts)
+
+				masterCommit.getTree( ).then(tree => {
+
+					const walker = tree.walk( )
+
+					walker.on('end', entries => {
+
+						const blameFacts = entries.map(entry => {
+
+							return git.Blame.file(repo, entry.path( ))
+								.then( facts.blame.bind({ }, entry.path( )) )
+								.catch(err => {
+									console.log(err)
+								})
+
+						})
+
+						promise.all(blameFacts)
+						.then(blameData => {
+
+							const repoFacts = facts.repository(commitFacts, blameData)
+
+							console.log(JSON.stringify(repoFacts))
+
+						})
+
+					})
+
+					walker.start( )
+
+				})
 
 			})
 
 			history.start( )
 
-			masterCommit.getTree( ).then(tree => {
-
-				const walker = tree.walk( )
-
-				walker.on('end', entries => {
-
-					const blameFacts = entries.map(entry => {
-
-						return git.Blame.file(repo, entry.path( ))
-							.then( facts.blame.bind({ }, entry.path( )) )
-							.catch(err => {
-								console.log(err)
-							})
-
-					})
-
-					const blameData = promise.all(blameFacts)
-					.then(f => {
-						console.log(JSON.stringify(f))
-					})
-
-				})
-
-				walker.start( )
-
-			})
 
 		})
 		.catch(err => {

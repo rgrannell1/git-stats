@@ -10,7 +10,7 @@ const promise = require('../commons/promise')
 
 
 
-const repository = commitFacts => {
+const repository = (commitFacts, blameFacts) => {
 
 	const stats = {
 		commits: commitFacts.length,
@@ -23,13 +23,27 @@ const repository = commitFacts => {
 
 		if (!stats.authors.hasOwnProperty(committer)) {
 
-			stats.authors[committer] = { count: 1 }
+			stats.authors[committer] = {
+				count: 1
+			}
 
 		} else {
 
 			stats.authors[committer].count++
 
 		}
+
+	})
+
+	blameFacts.forEach(blame => {
+
+		Object.keys(blame).forEach(author => {
+
+			//stats.authors[author].files = stats.authors[author].files || { }
+
+			console.log(blame)
+
+		})
 
 	})
 

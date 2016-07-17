@@ -23,6 +23,7 @@ const blame = (path, blameData) => {
 		var hunk = blameData.getHunkByIndex(ith)
 
 		var hunkData = {
+			path,
 			lines:  hunk.linesInHunk( ),
 			author: hunk.origSignature( ).name( )
 		}
@@ -32,6 +33,7 @@ const blame = (path, blameData) => {
 		if (!stats.authors.hasOwnProperty(hunkData.author)) {
 
 			stats.authors[hunkData.author] = {
+				path,
 				count: hunkData.lines
 			}
 
