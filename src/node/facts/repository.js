@@ -29,11 +29,12 @@ const repository = (commitFacts, blameFacts) => {
 
 		// TODO use a better metric. Stick in loop.
 
-		const firstDate = utils.minBy(commit => {
-			return commit.author.when.time
-		}, elems).author.when.time
+		const commitExtremes = {
+			min: utils.minBy(commit => commit.timeMs, elems),
+			max: utils.maxBy(commit => commit.timeMs, elems)
+		}
 
-		const past    = moment(1000 * firstDate)
+		const past    = moment(commitExtremes.timeMs)
 		const present = moment(Date.now( ))
 
 		const totalCommittingDays = present.diff(past, 'days')
@@ -52,7 +53,11 @@ const repository = (commitFacts, blameFacts) => {
 			commits:             elems.length,
 			commitsPerDay:       parseFloat(averageCommitsPerDay.toFixed(2), 10),
 			commitsPerActiveDay: parseFloat(averageCommitsPerActiveDay.toFixed(2), 10),
-			daysWithCommits:     commitsByDay.length
+			daysWithCommits:     commitsByDay.length,
+			commitRange: {
+				oldest: moment(commitExtremes.min.timeMs).format('MMMM Do YYYY, h:mm:ss a'),
+				newest: moment(commitExtremes.max.timeMs).format('MMMM Do YYYY, h:mm:ss a')
+			}
 		}
 
 	})

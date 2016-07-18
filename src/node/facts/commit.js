@@ -62,7 +62,7 @@ const commit = commitData => {
 					timeParts: [
 						parsedTimestamp.getFullYear( ),
 						parsedTimestamp.getMonth( ),
-						parsedTimestamp.getDay( )
+						parsedTimestamp.getDay( ) + 1
 					]
 
 				}

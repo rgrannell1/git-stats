@@ -53,8 +53,16 @@ utils.average = (fn, coll) => {
 utils.minBy = (fn, coll) => {
 
 	return coll.reduce((min, current) => {
-		return fn(current) < min ? current : min
-	}, +Infinity)
+		return fn(current) < fn(min) ? current : min
+	})
+
+}
+
+utils.maxBy = (fn, coll) => {
+
+	return coll.reduce((max, current) => {
+		return fn(current) > fn(max) ? current : max
+	})
 
 }
 
