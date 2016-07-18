@@ -21,7 +21,6 @@ const app = args => {
 	const commitSummaries = [ ]
 
 	const repoPath   = path.resolve(args['--path'])
-
 	const branchName = args['--branch']
 
 	git.Repository
@@ -48,8 +47,10 @@ const app = args => {
 
 						const blameFacts = entries.map(entry => {
 
+							const absolutePath = path.join(repoPath, entry.path( ))
+
 							return git.Blame.file(repo, entry.path( ))
-								.then( facts.blame.bind({ }, entry.path( )) )
+								.then( facts.blame.bind({ }, absolutePath) )
 								.catch(err => {
 									console.log(err)
 								})

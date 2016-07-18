@@ -24,8 +24,9 @@ const blame = (path, blameData) => {
 
 		var hunkData = {
 			path,
-			lines:  hunk.linesInHunk( ),
-			author: hunk.origSignature( ).name( )
+			lines:     hunk.linesInHunk( ),
+			author:    hunk.origSignature( ).name( ),
+			timestamp: hunk.origSignature( ).when( ).time( )
 		}
 
 		stats.hunks.push(hunkData)

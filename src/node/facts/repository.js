@@ -4,6 +4,7 @@
 
 
 
+const path    = require('path')
 const promise = require('../commons/promise')
 
 
@@ -25,7 +26,8 @@ const repository = (commitFacts, blameFacts) => {
 		if (!stats.authors.hasOwnProperty(committer)) {
 
 			stats.authors[committer] = {
-				commits: 1
+				commits: 1,
+				totalLines: 0
 			}
 
 		} else {
@@ -57,6 +59,26 @@ const repository = (commitFacts, blameFacts) => {
 
 			if (!authorStats.files) {
 				authorStats.files = { }
+			}
+
+			if (!authorStats.extensions) {
+				authorStats.extensions = { }
+			}
+
+			const extension = path.extname(authorBlame.path)
+
+			if (!authorStats.extensions[extension]) {
+
+				authorStats.extensions[extension] = {
+					count:      1,
+					totalLines: fileLines
+				}
+
+			} else {
+
+				authorStats.extensions[extension].count++
+				authorStats.extensions[extension].totalLines += fileLines
+
 			}
 
 			if (!authorFileStats.hasOwnProperty(authorBlame.path)) {
