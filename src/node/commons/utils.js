@@ -42,6 +42,22 @@ utils.groupBy = (fn, coll) => {
 
 }
 
+utils.average = (fn, coll) => {
+
+	const sum = coll.reduce((acc, elem) => acc + fn(elem), 0)
+
+	return sum / coll.length
+
+}
+
+utils.minBy = (fn, coll) => {
+
+	return coll.reduce((min, current) => {
+		return fn(current) < min ? current : min
+	}, +Infinity)
+
+}
+
 
 
 

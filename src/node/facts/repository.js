@@ -3,6 +3,7 @@
 
 
 
+const moment  = require('moment')
 
 const path    = require('path')
 const promise = require('../commons/promise')
@@ -26,9 +27,32 @@ const repository = (commitFacts, blameFacts) => {
 
 	commitsByAuthor.forEach(({key, elems}) => {
 
+		// TODO use a better metric. Stick in loop.
+
+		const firstDate = utils.minBy(commit => {
+			return commit.author.when.time
+		}, elems).author.when.time
+
+		const past    = moment(1000 * firstDate)
+		const present = moment(Date.now( ))
+
+		const totalCommittingDays = present.diff(past, 'days')
+
+		const commitsByDay = utils.groupBy(commit => {
+			return commit.author.when.timeParts.join('')
+		}, elems)
+
+		const averageCommitsPerActiveDay = utils.average(pair => {
+			return pair.elems.length
+		}, commitsByDay)
+
+		const averageCommitsPerDay = (averageCommitsPerActiveDay * commitsByDay.length) / totalCommittingDays
+
 		stats.authors[key] = {
-			commits:    elems.length,
-			totalLines: 0
+			commits:             elems.length,
+			commitsPerDay:       parseFloat(averageCommitsPerDay.toFixed(2), 10),
+			commitsPerActiveDay: parseFloat(averageCommitsPerActiveDay.toFixed(2), 10),
+			daysWithCommits:     commitsByDay.length
 		}
 
 	})
@@ -77,90 +101,15 @@ const repository = (commitFacts, blameFacts) => {
 
 		})
 
-		stats.authors[key] = {
+		stats.authors[key] = Object.assign({ }, {
+
 			files:      filesLineCounts,
-			extensions: extensionLineCounts
-		}
+			extensions: extensionLineCounts,
+			totalLines: elems.reduce((acc, elem) => acc + elem.lines, 0)
+
+		}, stats.authors[key])
 
 	})
-
-	/*
-
-	blameFacts.forEach(blame => {
-
-		Object.keys(blame.authors).forEach(author => {
-
-			const authorBlame = blame.authors[author]
-
-			if (!stats.authors[author]) {
-				stats.authors[author] = { }
-			}
-
-			const authorStats = stats.authors[author]
-
-			authorStats.files     = authorStats.files || { }
-			const authorFileStats = authorStats.files
-
-			if (!authorStats.files) {
-				authorStats.files = { }
-			}
-
-			if (!authorStats.extensions) {
-				authorStats.extensions = { }
-			}
-
-			const extension = path.extname(authorBlame.path)
-
-			if (!authorStats.extensions[extension]) {
-
-				authorStats.extensions[extension] = {
-					count:      1,
-					totalLines: fileLines
-				}
-
-			} else {
-
-				authorStats.extensions[extension].count++
-				authorStats.extensions[extension].totalLines += fileLines
-
-			}
-
-			if (!authorFileStats.hasOwnProperty(authorBlame.path)) {
-
-				authorFileStats[authorBlame.path] = {
-					authorLines: authorBlame.count,
-					totalLines:  fileLines,
-					linePercent: parseFloat((authorBlame.count / fileLines).toFixed(2)) || 0
-				}
-
-			} else {
-
-				authorFileStats.files[authorBlame.path].lines += authorBlame.count
-
-			}
-
-			if (!authorStats.collaborators) {
-				authorStats.collaborators = { }
-			}
-
-			if (!authorStats.lineCount) {
-				authorStats.lineCount = authorBlame.count
-			} else {
-				authorStats.lineCount += authorBlame.count
-			}
-
-			stats.lines += authorBlame.count
-
-		})
-
-	})
-
-	Object.keys(stats.authors).forEach(author => {
-		stats.authors[author].commitPercent = parseFloat((stats.authors[author].commits / stats.commits).toFixed(2)) || 0
-	})
-
-
-	*/
 
 	return stats
 

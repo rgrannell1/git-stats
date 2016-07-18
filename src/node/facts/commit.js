@@ -49,13 +49,22 @@ const commit = commitData => {
 
 	return ['author', 'committer'].reduce((acc, methodName) => {
 
+		const timestamp       = commitData[methodName]( ).when( ).time( )
+		const parsedTimestamp = new Date(1000 * timestamp)
+
 		return Object.assign(acc, {
 			[methodName]: {
 				email: commitData[methodName]( ).email( ),
 				name:  commitData[methodName]( ).name( ),
 				when:  {
 					offset: commitData[methodName]( ).when( ).offset( ),
-					time:   commitData[methodName]( ).when( ).time( )
+					time:   timestamp,
+					timeParts: [
+						parsedTimestamp.getFullYear( ),
+						parsedTimestamp.getMonth( ),
+						parsedTimestamp.getDay( )
+					]
+
 				}
 			}
 		})
