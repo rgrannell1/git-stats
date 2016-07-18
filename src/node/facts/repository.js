@@ -34,8 +34,8 @@ const repository = (commitFacts, blameFacts) => {
 			max: utils.maxBy(commit => commit.timeMs, elems)
 		}
 
-		const past    = moment(commitExtremes.timeMs)
-		const present = moment(Date.now( ))
+		const past        = moment(commitExtremes.min.author.when.time * 1000)
+		const present     = moment(Date.now( ))
 
 		const totalCommittingDays = present.diff(past, 'days')
 
@@ -49,15 +49,33 @@ const repository = (commitFacts, blameFacts) => {
 
 		const averageCommitsPerDay = (averageCommitsPerActiveDay * commitsByDay.length) / totalCommittingDays
 
+		const messages     = elems.map(elem => elem.message)
+		const messageTable = utils.tabulate(elem => {
+			return elem.trim( )
+		}, messages)
+
+		const commonMessages  = messageTable.slice(-10).filter(data => data.count >= 3).map(data => data.key)
+		const linesPerMessage = utils.average(message => message.split('\n').length - 1, messages)
+
+		const commitHours = elems.map(commit => moment(commit.timeMs).get('hour'))
+		const commitHoursTable = utils.tabulate(x => x, commitHours)
+			.map(({key, count}) => ({
+				hour: key, commits: count
+			}))
+			.sort((elem0, elem1) => elem0.hour - elem1.hour)
+
 		stats.authors[key] = {
 			commits:             elems.length,
 			commitsPerDay:       parseFloat(averageCommitsPerDay.toFixed(2), 10),
 			commitsPerActiveDay: parseFloat(averageCommitsPerActiveDay.toFixed(2), 10),
 			daysWithCommits:     commitsByDay.length,
+			commitHours:         commitHoursTable,
 			commitRange: {
 				oldest: moment(commitExtremes.min.timeMs).format('MMMM Do YYYY, h:mm:ss a'),
 				newest: moment(commitExtremes.max.timeMs).format('MMMM Do YYYY, h:mm:ss a')
-			}
+			},
+			commonMessages,
+			linesPerMessage
 		}
 
 	})

@@ -69,5 +69,40 @@ utils.maxBy = (fn, coll) => {
 
 
 
+utils.tabulate = (fn, coll) => {
+
+	const table = [ ]
+
+	coll.forEach(elem => {
+
+		const key = fn(elem)
+
+		var hasMatch = false
+
+		table.forEach(tableElem => {
+
+			if (tableElem.key === key) {
+				tableElem.count++
+				hasMatch = true
+			}
+
+		})
+
+		if (!hasMatch) {
+			table.push({key, count: 1 })
+		}
+
+	})
+
+	return table.sort((elem0, elem1) => {
+		return elem0.count - elem1.count
+	})
+
+}
+
+
+
+
+
 
 module.exports = utils
