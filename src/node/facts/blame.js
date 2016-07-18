@@ -22,11 +22,19 @@ const blame = (path, blameData) => {
 
 		var hunk = blameData.getHunkByIndex(ith)
 
+		const timestamp       = hunk.origSignature( ).when( ).time( )
+		const parsedTimestamp = new Date(1000 * timestamp)
+
 		var hunkData = {
 			path,
 			lines:     hunk.linesInHunk( ),
 			author:    hunk.origSignature( ).name( ),
-			timestamp: hunk.origSignature( ).when( ).time( )
+			timestamp,
+			timeParts: [
+				parsedTimestamp.getFullYear( ),
+				parsedTimestamp.getMonth( ),
+				parsedTimestamp.getDay( )
+			]
 		}
 
 		stats.hunks.push(hunkData)

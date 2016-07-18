@@ -6,6 +6,7 @@
 
 const path    = require('path')
 const promise = require('../commons/promise')
+const utils   = require('../commons/utils')
 
 
 
@@ -19,30 +20,73 @@ const repository = (commitFacts, blameFacts) => {
 		authors: { }
 	}
 
-	commitFacts.forEach(commit => {
+	const commitsByAuthor = utils.groupBy(commit => {
+		return commit.committer.name
+	}, commitFacts)
 
-		const committer = commit.committer.name
+	commitsByAuthor.forEach(({key, elems}) => {
 
-		if (!stats.authors.hasOwnProperty(committer)) {
-
-			stats.authors[committer] = {
-				commits: 1,
-				totalLines: 0
-			}
-
-		} else {
-
-			stats.authors[committer].commits++
-
+		stats.authors[key] = {
+			commits:    elems.length,
+			totalLines: 0
 		}
 
 	})
 
-	blameFacts.forEach(blame => {
+	const hunks = blameFacts.reduce((hunks, facts) => {
+		return hunks.concat(facts.hunks)
+	}, [ ])
 
-		const fileLines = Object.keys(blame.authors)
-			.map(author => blame.authors[author].count)
-			.reduce((num0, num1) => num0 + num1, 0)
+	stats.lines = hunks.reduce((acc, hunk) => acc + hunk.lines, 0)
+
+	const blameByAuthor = utils.groupBy(hunk => {
+		return hunk.author
+	}, hunks)
+
+	const fileLines = hunks.reduce((acc, hunk) => {
+		return acc + hunk.lines
+	}, 0)
+
+	blameByAuthor.forEach(({key, elems}) => {
+
+		const filesByAuthor = utils.groupBy(hunk => {
+			return hunk.path
+		}, elems)
+
+		const filesLineCounts = filesByAuthor.map(({key, elems}) => {
+
+			return {
+				path: key,
+				lineCount: elems.reduce((acc, elem) => acc + elem.lines, 0),
+				hunkCount: elems.length
+			}
+
+		})
+
+		const extensionsByAuthor = utils.groupBy(hunk => {
+			return path.extname(hunk.path)
+		}, elems)
+
+		const extensionLineCounts = extensionsByAuthor.map(({key, elems}) => {
+
+			return {
+				extension: key,
+				lineCount: elems.reduce((acc, elem) => acc + elem.lines, 0),
+				fileCount: elems.length
+			}
+
+		})
+
+		stats.authors[key] = {
+			files:      filesLineCounts,
+			extensions: extensionLineCounts
+		}
+
+	})
+
+	/*
+
+	blameFacts.forEach(blame => {
 
 		Object.keys(blame.authors).forEach(author => {
 
@@ -114,6 +158,9 @@ const repository = (commitFacts, blameFacts) => {
 	Object.keys(stats.authors).forEach(author => {
 		stats.authors[author].commitPercent = parseFloat((stats.authors[author].commits / stats.commits).toFixed(2)) || 0
 	})
+
+
+	*/
 
 	return stats
 
